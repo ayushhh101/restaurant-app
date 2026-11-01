@@ -1,0 +1,22 @@
+EXPERIMENT 6 — BLOOM FILTER + DGIM (PYTHON)
+1. This experiment uses Python only; no Hadoop/Pig is required.
+2. Check Python: python --version (or python3 --version).
+3. Save Exp6_Code.py on the computer.
+4. Open terminal/Command Prompt in the folder containing the file.
+5. Run:
+   python Exp6_Code.py
+   On some Linux machines use: python3 Exp6_Code.py
+6. No external packages are required; the program uses Python standard libraries only.
+7. PART 1 — Bloom Filter:
+   - Expected capacity n=100 and false-positive probability p=0.01.
+   - It computes bit-array size m and number of hash functions k.
+   - Adds malicious URLs to the filter.
+   - Checks blacklisted and clean test URLs.
+   - False means definitely absent; True means possibly present. Bloom filters can have false positives but not false negatives for inserted items when implemented correctly.
+8. PART 2 — DGIM:
+   - Processes a binary stream: 1 means threat; 0 means clean.
+   - Maintains timestamped buckets whose sizes are powers of two.
+   - Keeps at most two buckets of each size by merging the two oldest when a third appears.
+   - Estimates number of 1s in the last k stream bits.
+9. The journal's stream has 14 ones in 20 bits. The DGIM estimate is approximate; the exact displayed estimate depends on the standard boundary-bucket convention. This code uses the standard convention: count all fully included buckets plus half of the oldest bucket that overlaps the query boundary.
+10. Expected membership checks: malware-site URL -> possibly present; google.com -> definitely absent (for the deterministic hashes in this program).

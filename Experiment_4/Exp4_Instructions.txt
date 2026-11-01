@@ -1,0 +1,20 @@
+EXPERIMENT 4 — MONGODB: ONLINE BOOK STORE CRUD, SEARCH, INDEXING
+1. Open MongoDB Compass OR open a terminal and run: mongosh
+2. Confirm shell connects to local MongoDB. If connection fails, MongoDB Server service is not running; start it from Windows Services (MongoDB Server) or ask lab staff.
+3. In mongosh, paste/run the complete Exp4_Code.js file. It selects database online_book_store, creates books collection and performs the journal's operations.
+4. To run from terminal instead: mongosh < Exp4_Code.js
+5. Read output after each command. `insertedId`, `matchedCount`, `modifiedCount` and `deletedCount` indicate the operation result.
+6. Important: Run the script once on a fresh `online_book_store` database. Re-running it can insert duplicate sample books and apply the 10% price update again. The script does NOT drop an existing collection.
+7. MongoDB concepts:
+   - Database: container for collections.
+   - Collection: group of documents (similar to a table).
+   - Document: BSON record containing fields.
+   - CRUD: Create/Insert, Read/Find, Update, Delete.
+   - `$gt`: greater than; `$set`: update field; `$mul`: multiply; `$or`: either condition.
+   - Regex `/Code/i`: contains Code, case-insensitive.
+   - Index: speeds up queries on indexed fields; compound index covers multiple fields.
+8. To practise individual commands, highlight/copy one section at a time from the code file.
+9. Verify final collection:
+   use online_book_store
+   db.books.find().pretty()
+10. If MongoDB shell uses a different prompt or output style, that is normal; command syntax remains the same.

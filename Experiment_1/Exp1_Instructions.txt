@@ -1,0 +1,63 @@
+EXPERIMENT 1 — HADOOP PSEUDO-DISTRIBUTED MODE + HDFS COMMANDS
+What this practical does:
+Start an already-installed/configured Hadoop pseudo-distributed setup and practise HDFS commands.
+IMPORTANT: Your journal shows HDFS commands and Hadoop startup, but does NOT contain a complete, version-specific installation configuration. Do not blindly reinstall Hadoop tomorrow. Ask the lab assistant which Hadoop directory/configuration is preinstalled.
+
+BEFORE YOU START
+1. Open the Ubuntu/Linux terminal (the journal screenshots show a Linux terminal).
+2. Check Java: java -version
+3. Check Hadoop: hadoop version
+4. If either command says "command not found", Hadoop/Java is not configured. Ask the lab assistant for the lab machine's setup. Do not continue with random downloads.
+5. Check the Hadoop configuration: echo $HADOOP_HOME
+6. If Hadoop is installed, start HDFS and YARN:
+   start-dfs.sh
+   start-yarn.sh
+7. Check daemons:
+   jps
+   You should normally see NameNode, DataNode, SecondaryNameNode, ResourceManager and NodeManager (exact processes depend on the lab setup).
+8. If the NameNode has never been formatted, only the lab assistant should decide whether to run: hdfs namenode -format. WARNING: formatting an existing NameNode can destroy its HDFS namespace. Do NOT run it on an already-used lab machine.
+
+HDFS COMMANDS — TYPE ONE LINE AT A TIME
+9. Create a directory:
+   hdfs dfs -mkdir -p /user/$USER/bda
+10. List the root:
+    hdfs dfs -ls /
+11. List your directory:
+    hdfs dfs -ls /user/$USER/bda
+12. Create a small LOCAL text file:
+    printf "Hello Hadoop\nBig Data Analytics\n" > sample.txt
+13. Copy local file INTO HDFS (put):
+    hdfs dfs -put -f sample.txt /user/$USER/bda/
+14. Display HDFS file:
+    hdfs dfs -cat /user/$USER/bda/sample.txt
+15. List HDFS directory:
+    hdfs dfs -ls /user/$USER/bda
+16. Copy HDFS file back TO LOCAL machine (get):
+    hdfs dfs -get -f /user/$USER/bda/sample.txt downloaded_sample.txt
+17. Move local file into HDFS (moveFromLocal consumes/removes local source):
+    printf "Moved file example\n" > moved.txt
+    hdfs dfs -moveFromLocal moved.txt /user/$USER/bda/
+18. Copy within HDFS:
+    hdfs dfs -cp /user/$USER/bda/sample.txt /user/$USER/bda/sample_copy.txt
+19. Rename/move within HDFS:
+    hdfs dfs -mv /user/$USER/bda/sample_copy.txt /user/$USER/bda/renamed.txt
+20. Verify:
+    hdfs dfs -ls /user/$USER/bda
+    hdfs dfs -cat /user/$USER/bda/renamed.txt
+21. Optional remove:
+    hdfs dfs -rm /user/$USER/bda/renamed.txt
+
+WHAT TO SAY
+- NameNode stores HDFS metadata; DataNode stores actual blocks.
+- HDFS is distributed storage; local filesystem is the computer's own files.
+- put copies local -> HDFS; get copies HDFS -> local; moveFromLocal moves local -> HDFS; cp copies inside HDFS; mv renames/moves inside HDFS; cat prints file contents.
+
+STOPPING SERVICES (only if lab asks you to stop them)
+22. stop-yarn.sh
+23. stop-dfs.sh
+
+COMMON PROBLEMS
+- "Safe mode": wait, then ask before using `hdfs dfsadmin -safemode leave`.
+- "Connection refused": NameNode may not be running; check `jps` and start-dfs.sh.
+- "File exists": use the -f option only when overwriting your own test file.
+- Never format an existing HDFS cluster just to fix an error.

@@ -1,0 +1,97 @@
+EXPERIMENT 2 — SQOOP + MYSQL (IMPORT AND EXPORT)
+Goal: Transfer a relational MySQL table to HDFS with Sqoop, and export HDFS data back to MySQL.
+
+IMPORTANT REQUIREMENTS
+- This journal uses Linux, Hadoop, Sqoop 1.x and MySQL. Sqoop 1 is old and may not be installed on modern lab machines.
+- First check: java -version; hadoop version; sqoop version; mysql --version.
+- Do not attempt installation from scratch during the practical if the lab machine is not configured. Ask for the configured lab environment.
+- The journal's screenshots show a database/table named college/faculty, but the parsed journal does not reliably expose every column definition. To make this procedure self-contained, use the matching sample schema below. If the examiner provides a pre-created faculty table, inspect it with DESCRIBE and adapt the column names.
+- Replace MYSQL_USER and MYSQL_PASSWORD with credentials supplied by the lab. Do not assume the password is literally "password".
+
+PART A — CREATE MYSQL DATABASE AND TABLE
+1. Open terminal and log into MySQL:
+   mysql -u root -p
+2. Enter the password when prompted.
+3. Paste these SQL statements at the mysql> prompt:
+   CREATE DATABASE IF NOT EXISTS college;
+   USE college;
+   CREATE TABLE IF NOT EXISTS faculty (
+     id INT PRIMARY KEY,
+     name VARCHAR(80),
+     department VARCHAR(50),
+     salary INT
+   );
+   INSERT INTO faculty VALUES
+     (1,'Asha','Computer',55000),
+     (2,'Ravi','Mechanical',48000),
+     (3,'Neha','Computer',62000),
+     (4,'Imran','Civil',51000);
+   SELECT * FROM faculty;
+   DESCRIBE faculty;
+4. Exit MySQL:
+   EXIT;
+
+PART B — CHECK SERVICES AND SQOOP CONNECTION
+5. Ensure HDFS is running:
+   start-dfs.sh
+   jps
+6. Check Sqoop:
+   sqoop version
+7. Test connection (substitute correct user):
+   sqoop list-databases --connect jdbc:mysql://localhost:3306/ --username root -P
+   Type MySQL password when prompted.
+   If driver error occurs, MySQL JDBC Connector JAR is missing from Sqoop's lib directory; ask lab staff to supply the configured connector.
+
+PART C — IMPORT TABLE FROM MYSQL TO HDFS
+8. Import full table into HDFS:
+   sqoop import --connect jdbc:mysql://localhost:3306/college --username root -P --table faculty --target-dir /user/$USER/faculty_import --delete-target-dir --num-mappers 1
+   `--num-mappers 1` uses one mapper and avoids needing a split column.
+9. View imported data:
+   hdfs dfs -ls /user/$USER/faculty_import
+   hdfs dfs -cat /user/$USER/faculty_import/part-m-00000
+10. Import selected columns/rows (subset):
+   sqoop import --connect jdbc:mysql://localhost:3306/college --username root -P --table faculty --columns id,name,salary --where "department='Computer'" --target-dir /user/$USER/faculty_subset --delete-target-dir --num-mappers 1
+11. Import to a named HDFS directory (same syntax as step 8, with --target-dir).
+
+PART D — PASSWORD HANDLING
+12. Interactive password prompt (safer than putting password in command):
+   sqoop import --connect jdbc:mysql://localhost:3306/college --username root -P --table faculty --target-dir /user/$USER/faculty_prompt --delete-target-dir --num-mappers 1
+13. Password file method (Linux):
+   printf '%s' 'YOUR_MYSQL_PASSWORD' > mysql.pass
+   chmod 600 mysql.pass
+   sqoop import --connect jdbc:mysql://localhost:3306/college --username root --password-file file://$PWD/mysql.pass --table faculty --target-dir /user/$USER/faculty_filepass --delete-target-dir --num-mappers 1
+   Replace placeholder before running. Never submit or share the password file.
+
+PART E — COMPRESS IMPORT
+14. Import using Gzip compression:
+   sqoop import --connect jdbc:mysql://localhost:3306/college --username root -P --table faculty --target-dir /user/$USER/faculty_gzip --delete-target-dir --compress --compression-codec org.apache.hadoop.io.compress.GzipCodec --num-mappers 1
+15. List output:
+   hdfs dfs -ls /user/$USER/faculty_gzip
+
+PART F — EXPORT HDFS DATA BACK TO MYSQL
+16. For export, destination table must already exist and HDFS input must contain tab-separated values in the same column order. Create a clean target table in MySQL:
+   CREATE TABLE faculty_export (
+     id INT PRIMARY KEY,
+     name VARCHAR(80),
+     department VARCHAR(50),
+     salary INT
+   );
+   EXIT;
+17. Create an HDFS data file. This is tab-separated (between fields press Tab, not spaces):
+   printf '10\tKiran\tIT\t70000\n11\tMeera\tComputer\t72000\n' > export_data.txt
+   hdfs dfs -mkdir -p /user/$USER/faculty_export_input
+   hdfs dfs -put -f export_data.txt /user/$USER/faculty_export_input/
+18. Export:
+   sqoop export --connect jdbc:mysql://localhost:3306/college --username root -P --table faculty_export --export-dir /user/$USER/faculty_export_input --input-fields-terminated-by '\t' --num-mappers 1
+19. Verify in MySQL:
+   mysql -u root -p
+   USE college;
+   SELECT * FROM faculty_export;
+   EXIT;
+
+TROUBLESHOOTING
+- "Output directory already exists": use a new --target-dir or remove only your own test directory using hdfs dfs -rm -r PATH.
+- "Access denied": use the username/password given by lab staff.
+- "No suitable driver": MySQL Connector/J is not on Sqoop classpath.
+- "Connection refused": MySQL is not running or host/port is wrong.
+- Sqoop export may fail if target table columns/types do not match input fields.

@@ -1,0 +1,35 @@
+EXPERIMENT 5 — APACHE PIG: AGRICULTURE + TITANIC ANALYSIS
+The journal has TWO parts. Part 1 uses crop_production.csv (Moodle dataset). Part 2 uses a Titanic passenger CSV.
+
+BEFORE STARTING
+1. Use a Linux terminal with Apache Pig installed.
+2. Check: pig -version
+3. This kit uses Pig LOCAL mode, as shown in your journal:
+   pig -x local
+4. Keep the CSV file in the current directory, or use its full absolute path.
+5. Your agriculture schema in the journal is:
+   state_name:chararray, district_name:chararray, crop_year:int,
+   season:chararray, crop:chararray, area:double, production:double.
+6. Your actual dataset must have these seven columns in this exact order. If it has a header row, the script filters the header out.
+
+PART 1 — AGRICULTURE DATA
+7. Copy Exp5_Code.pig to the folder containing crop_production.csv.
+8. Start Pig local mode: pig -x local
+9. At the grunt> prompt, run:
+   exec Exp5_Code.pig
+10. The script LOADs the agriculture CSV, DESCRIBEs it, DUMPs sample records, groups by state, finds the highest-production record in each state, stores results to local output folder data_top, and copies the result into HDFS.
+11. To see local result, open another terminal and inspect data_top/part-r-00000 (Pig local output layout can vary by Pig version; inspect files under data_top).
+
+PART 2 — TITANIC DATA
+12. Put your Titanic CSV in the same folder and name it titanic.csv.
+13. The script assumes columns in this order:
+    PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+14. IMPORTANT CSV limitation: this simple PigStorage(',') example expects no commas embedded inside quoted Name/Ticket fields. If your Titanic file contains quoted commas, use the lab's CSV-capable PigStorage loader (Piggybank CSVExcelStorage) or ask the examiner which dataset format is supplied. The standard Kaggle Titanic train.csv generally has no commas in passenger names.
+15. The script displays first 10 passenger rows, counts by gender, survivors/non-survivors, passengers by class, and average fare by class.
+16. For each part, `DUMP alias;` prints the output in the Grunt console.
+
+COMMON ERRORS
+- "Input path does not exist": file is not in current folder; use absolute path.
+- "Pig command not found": Pig is not installed/configured.
+- "Output directory already exists": remove the old output folder first (only your own output), or change the output name.
+- Type conversion errors: inspect CSV column order and missing values.

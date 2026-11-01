@@ -1,0 +1,51 @@
+EXPERIMENT 3 — HADOOP MAPREDUCE
+Your journal contains THREE programs: Word Count, Total Word Count, and Matrix Multiplication.
+The code file contains complete Java source files. Save each code listing under the exact filename shown above it.
+
+GENERAL SETUP
+1. Use a Linux machine with Hadoop configured and running in pseudo-distributed mode.
+2. Check: hadoop version
+3. Create an input file:
+   mkdir -p ~/bda_input
+   printf "hello hadoop hello\nbig data hadoop\n" > ~/bda_input/input.txt
+4. Upload to HDFS:
+   hdfs dfs -mkdir -p /user/$USER/bda_input
+   hdfs dfs -put -f ~/bda_input/input.txt /user/$USER/bda_input/
+5. Create a folder for Java files:
+   mkdir -p ~/bda_exp3 && cd ~/bda_exp3
+6. Copy the required Java program from Exp3_Code.txt into a file with the exact name:
+   WordCount.java OR TotalCount.java OR MatrixMultiply.java
+   Do not paste the explanatory filename line into Java code.
+7. Compile against the Hadoop classpath:
+   javac -classpath "$(hadoop classpath)" -d . WordCount.java
+   (Replace filename/class with the program you are running.)
+8. Package class files:
+   jar -cvf exp3.jar -C . .
+9. Run Word Count:
+   hadoop jar exp3.jar WordCount /user/$USER/bda_input /user/$USER/wc_output
+   hdfs dfs -cat /user/$USER/wc_output/part-r-00000
+10. For another program, use a fresh output directory because Hadoop refuses to write into an existing output directory:
+   hdfs dfs -rm -r -f /user/$USER/wc_output
+   then rerun if needed.
+11. Total Count:
+   Compile TotalCount.java, create jar, then:
+   hadoop jar exp3.jar TotalCount /user/$USER/bda_input /user/$USER/total_output
+   hdfs dfs -cat /user/$USER/total_output/part-r-00000
+12. Matrix multiplication input format:
+   Each line: matrix,row,column,value (zero-based row/column indexes).
+   A is 2x5; B is 5x3. Save the sample lines in matrix.txt as shown in the code file.
+13. Upload:
+   hdfs dfs -mkdir -p /user/$USER/matrix_input
+   hdfs dfs -put -f matrix.txt /user/$USER/matrix_input/
+14. Compile MatrixMultiply.java and run:
+   hadoop jar exp3.jar MatrixMultiply /user/$USER/matrix_input /user/$USER/matrix_output
+   hdfs dfs -cat /user/$USER/matrix_output/part-r-00000
+
+IMPORTANT MATRIX NOTE
+The matrix program is a one-step MapReduce multiplication for the journal's fixed dimensions (A: 2x5, B: 5x3). It treats omitted matrix entries as zero. Its input must use the exact comma-separated format in the code file.
+
+COMMON ERRORS
+- "Output directory already exists": remove only your own output directory with hdfs dfs -rm -r -f PATH.
+- "ClassNotFound": ensure jar contains the class and use the exact class name.
+- "Could not find or load main class": compile and package from the directory containing generated class files.
+- "Permission denied": use your own /user/$USER HDFS paths.

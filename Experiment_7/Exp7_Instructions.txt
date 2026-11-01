@@ -1,0 +1,20 @@
+EXPERIMENT 7 — R DATA ANALYSIS AND VISUALIZATION (IRIS)
+1. This practical uses R and preferably RStudio. The journal uses the built-in Iris dataset, so no dataset download is required.
+2. Open RStudio.
+3. Select File -> New File -> R Script.
+4. Copy the complete Exp7_Code.R file into the script editor.
+5. Save it as Experiment7_Iris.R.
+6. Click Source (top-right of script editor) OR select all and press Ctrl+Enter.
+7. The dataset appears in the Environment as iris. It has 150 rows, 5 columns and 3 species (50 rows per species).
+8. The Console displays dataset preview, structure, summary, dimensions, missing-value counts and species-wise statistics.
+9. Plots appear in the Plots pane. Use the arrow buttons to move between Histogram, Scatter Plot, Box Plot, Pie Chart and Bar Chart.
+10. If a plot does not appear when running Source, run its plot command separately or click the Plots tab.
+11. No additional R packages are needed; the code uses base R.
+12. Viva:
+    - head(): first six rows by default.
+    - str(): structure and data types.
+    - summary(): min, quartiles, median, mean, max for numeric columns.
+    - dim(): number of rows and columns.
+    - is.na(): detects missing values.
+    - aggregate(): grouped statistical summary.
+    - hist(): histogram; plot(): scatter plot; boxplot(): distribution/outliers; pie(): proportions; barplot(): category counts.
